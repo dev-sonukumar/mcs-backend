@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 // faq schema
 
-const faqSchema = new mongoose.Schema({
+const bisfaqSchema = new mongoose.Schema({
   question: {
     type: String,
     required: true,
@@ -15,4 +15,4 @@ const faqSchema = new mongoose.Schema({
 
 // exporting the faq schema
 
-module.exports = mongoose.model("Faq", faqSchema);
+module.exports = mongoose.model("bisFaqs", faqSchema);

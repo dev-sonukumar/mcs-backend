@@ -30,7 +30,7 @@ app.use(express.json()); // Replaces bodyParser
 
 // ✅ Routes (Use Correct Path)
 const faqRouter = require("./routes/faqRouter");
-app.use("/faqs", faqRouter); // Ensure frontend fetches "/faqs"
+app.use("/bisfaqs", faqRouter); // Ensure frontend fetches "/faqs"
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
