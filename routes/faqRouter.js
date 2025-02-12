@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router(); // Correcting the router import
 const faq = require("../models/faq");
 
+const cors = require("cors");
+app.use(cors());
+
 // Get all FAQs
 router.get("/", async (req, res) => {
   try {
