@@ -1,20 +1,32 @@
-require("dotenv").config(); // Load environment variables
 const express = require("express");
+const cors = require("cors");
+require("dotenv").config(); // Load environment variables
+
 const app = express();
 const db = require("./db");
-const cors = require("cors");
-const bodyParser = require("body-parser");
 
-// ✅ Restrict CORS for production, allow all for development
-const allowedOrigins = ["https://your-netlify-app.netlify.app"];
+// ✅ Allow Specific Origins (Netlify & Localhost for Development)
+const allowedOrigins = [
+  "http://localhost:5173", // Your frontend in development
+  "https://your-netlify-app.netlify.app", // Your deployed frontend
+];
+
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production" ? allowedOrigins : "*",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 // ✅ Middleware
-app.use(bodyParser.json());
+app.use(express.json()); // Replaces bodyParser
 
 // ✅ Routes
 const faqRouter = require("./routes/faqRouter");
