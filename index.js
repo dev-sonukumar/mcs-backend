@@ -30,7 +30,7 @@ app.use(express.json()); // Replaces bodyParser
 
 // ✅ Routes
 const faqRouter = require("./routes/faqRouter");
-app.use("/faq", faqRouter);
+app.use("/faqs", faqRouter);
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
