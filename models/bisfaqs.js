@@ -15,4 +15,4 @@ const bisfaqSchema = new mongoose.Schema({
 
 // exporting the faq schema
 
-module.exports = mongoose.model("bisFaqs", faqSchema);
+module.exports = mongoose.model("bisFaqs", bisfaqSchema);
