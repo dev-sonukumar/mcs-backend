@@ -1,14 +1,11 @@
 const express = require("express");
-const router = express.Router(); // Correcting the router import
-const faq = require("../models/faq");
-
-const cors = require("cors");
-app.use(cors());
+const router = express.Router();
+const Faq = require("../models/faq"); // Renamed model import for clarity
 
 // Get all FAQs
 router.get("/", async (req, res) => {
   try {
-    const faqs = await faq.find();
+    const faqs = await Faq.find(); // Use correct model name
     res.json(faqs);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -21,8 +18,8 @@ router.get("/:id", getFaq, (req, res) => {
 });
 
 // Create a new FAQ
-router.post("/createFaq", async (req, res) => {
-  const newFaq = new faq({
+router.post("/", async (req, res) => {
+  const newFaq = new Faq({
     question: req.body.question,
     answer: req.body.answer,
   });
@@ -37,10 +34,8 @@ router.post("/createFaq", async (req, res) => {
 
 // Update a FAQ
 router.patch("/:id", getFaq, async (req, res) => {
-  if (req.body.question || req.body.answer) {
-    res.faq.question = req.body.question;
-    res.faq.answer = req.body.answer;
-  }
+  if (req.body.question) res.faq.question = req.body.question;
+  if (req.body.answer) res.faq.answer = req.body.answer;
 
   try {
     const updatedFaq = await res.faq.save();
@@ -53,20 +48,19 @@ router.patch("/:id", getFaq, async (req, res) => {
 // Delete a FAQ
 router.delete("/:id", getFaq, async (req, res) => {
   try {
-    await res.faq.remove();
+    await Faq.deleteOne({ _id: res.faq._id }); // ✅ Correct deletion method
     res.json({ message: "FAQ deleted." });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Middleware function to get FAQ by ID
+// Middleware to get FAQ by ID
 async function getFaq(req, res, next) {
   let faq;
-
   try {
-    faq = await faq.findById(req.params.id);
-    if (faq == null) {
+    faq = await Faq.findById(req.params.id); // Use correct model name
+    if (!faq) {
       return res.status(404).json({ message: "FAQ not found." });
     }
   } catch (err) {
@@ -77,4 +71,4 @@ async function getFaq(req, res, next) {
   next();
 }
 
-module.exports = router; // Export the router
+module.exports = router;
