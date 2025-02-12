@@ -1,14 +1,14 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config(); // Load environment variables
+require("dotenv").config();
 
 const app = express();
 const db = require("./db");
 
-// ✅ Allow Specific Origins (Netlify & Localhost for Development)
+// ✅ CORS Middleware (Place Before Routes)
 const allowedOrigins = [
-  "http://localhost:5173", // Your frontend in development
-  "https://mcstechnology.netlify.app/", // Your deployed frontend
+  "http://localhost:5173", // Development Frontend
+  "https://mcstechnology.netlify.app", // Production Frontend
 ];
 
 app.use(
@@ -25,12 +25,12 @@ app.use(
   })
 );
 
-// ✅ Middleware
+// ✅ Middleware (Must Come After CORS)
 app.use(express.json()); // Replaces bodyParser
 
-// ✅ Routes
+// ✅ Routes (Use Correct Path)
 const faqRouter = require("./routes/faqRouter");
-app.use("/faqs", faqRouter);
+app.use("/faqs", faqRouter); // Ensure frontend fetches "/faqs"
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;

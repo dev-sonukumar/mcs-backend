@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const Faq = require("../models/faq"); // Renamed model import for clarity
 
-// Get all FAQs
+// Get all FAQs (Ensure it works with `/faqs`)
 router.get("/", async (req, res) => {
   try {
-    const faqs = await Faq.find(); // Use correct model name
-    res.json(faqs);
+    const faqs = await Faq.find();
+    res.status(200).json(faqs);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
