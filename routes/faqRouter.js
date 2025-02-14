@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const bisFaqs = require("../models/bisfaqs"); // Renamed model import for clarity
+const bisFaqs = require("../models/bisfaqs"); // Import FAQ model
 
-// Get all FAQs (Ensure it works with `/faqs`)
-
+// Get all FAQs
 router.get("/", async (req, res) => {
   try {
     const faqs = await bisFaqs.find();
@@ -13,30 +12,18 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get a single FAQ (Ensure it works with `/faqs/:id`)
-
-router.get("/:id", getFaq, (req, res) => {
-  res.json(res.faq);
-});
-
-// Middleware function to get a single FAQ by ID
-
-async function getFaq(req, res, next) {
+// Get a single FAQ by ID
+router.get("/:id", async (req, res) => {
   try {
     const faq = await bisFaqs.findById(req.params.id);
-    if (faq) {
-      res.faq = faq;
-      next();
-    } else {
-      res.status(404).json({ message: "FAQ not found" });
-    }
+    if (!faq) return res.status(404).json({ message: "FAQ not found" });
+    res.json(faq);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-}
+});
 
-// Create a new FAQ (Ensure it works with `/faqs`)
-
+// Create a new FAQ
 router.post("/", async (req, res) => {
   const faq = new bisFaqs({
     question: req.body.question,
@@ -51,33 +38,31 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Update a FAQ (Ensure it works with `/faqs/:id`)
-
-router.patch("/:id", getFaq, async (req, res) => {
-  if (req.body.question || req.body.answer) {
-    res.faq.question = req.body.question;
-    res.faq.answer = req.body.answer;
-  }
-
+// Update an FAQ (Use PUT for full update)
+router.put("/:id", async (req, res) => {
   try {
-    const updatedFaq = await res.faq.save();
+    const updatedFaq = await bisFaqs.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body }, // Only updates provided fields
+      { new: true, runValidators: true } // Returns updated document & ensures validation
+    );
+
+    if (!updatedFaq) return res.status(404).json({ message: "FAQ not found" });
     res.json(updatedFaq);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
 
-// Delete a FAQ (Ensure it works with `/faqs/:id`)
-
-router.delete("/:id", getFaq, async (req, res) => {
+// Delete an FAQ
+router.delete("/:id", async (req, res) => {
   try {
-    await res.faq.remove();
-    res.json({ message: "FAQ deleted." });
+    const deletedFaq = await bisFaqs.findByIdAndDelete(req.params.id);
+    if (!deletedFaq) return res.status(404).json({ message: "FAQ not found" });
+    res.json({ message: "FAQ deleted successfully." });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
-// Export the router
 
 module.exports = router;
