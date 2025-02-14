@@ -39,16 +39,15 @@ router.post("/", async (req, res) => {
 });
 
 // Update an FAQ (Use PUT for full update)
+
 router.put("/:id", async (req, res) => {
   try {
-    const updatedFaq = await bisFaqs.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body }, // Only updates provided fields
-      { new: true, runValidators: true } // Returns updated document & ensures validation
-    );
-
-    if (!updatedFaq) return res.status(404).json({ message: "FAQ not found" });
-    res.json(updatedFaq);
+    const faq = await bisFaqs.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!faq) return res.status(404).json({ message: "FAQ not found" });
+    res.json(faq);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
