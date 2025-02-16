@@ -28,9 +28,15 @@ app.use(
 // ✅ Middleware (Must Come After CORS)
 app.use(express.json()); // Replaces bodyParser
 
-// ✅ Routes (Use Correct Path)
-const faqRouter = require("./routes/bisfaqsRouter");
-app.use("/bisfaqs", faqRouter); // Ensure frontend fetches "/faqs"
+// ✅  --- Routes by Bis Faqs ---- (Use Correct Path)
+const bisfaqRouter = require("./routes/bisfaqsRouter");
+app.use("/bisfaqs", bisfaqRouter);
+
+const etafaqRouter = require("./routes/etafaqsRouter");
+app.use("/etafaqs", etafaqRouter);
+
+const eprfaqRouter = require("./routes/eprfaqsRouter");
+app.use("/eprfaqs", eprfaqRouter);
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
