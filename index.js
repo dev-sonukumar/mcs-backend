@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+const contactRoutes = require("./routes/contactRoutes");
+const errorHandler = require("./middleware/errorHandler");
 const app = express();
 const db = require("./db");
 
@@ -27,6 +29,11 @@ app.use(
 
 // ✅ Middleware (Must Come After CORS)
 app.use(express.json()); // Replaces bodyParser
+
+// Routes
+app.use("/api/contact", contactRoutes);
+// Error Handling Middleware
+app.use(errorHandler);
 
 // ✅  --- Routes by Bis Faqs ---- (Use Correct Path)
 const bisfaqRouter = require("./routes/bisfaqsRouter");
