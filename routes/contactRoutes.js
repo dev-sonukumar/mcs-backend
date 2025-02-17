@@ -11,16 +11,22 @@ router.post("/", async (req, res) => {
 
   const mailOptions = {
     from: process.env.SMTP_EMAIL,
-    to: process.env.SMTP_EMAIL, // Your email
+    to: process.env.SMTP_EMAIL, // The email you're sending to (your inbox)
     subject: `New Contact Form Message: ${subject}`,
     text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent successfully:", info.response);
     res.status(200).json({ message: "Email sent successfully!" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to send email." });
+    console.error("❌ Error sending email:", error);
+    res.status(500).json({
+      error: "Failed to send email.",
+      details: error.message,
+      stack: error.stack,
+    });
   }
 });
 
