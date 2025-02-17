@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-// faq schema
+// -- faq schema --
 
 const bisfaqSchema = new mongoose.Schema({
   question: {
