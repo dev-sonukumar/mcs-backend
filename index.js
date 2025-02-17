@@ -1,15 +1,16 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet"); // Added for security
 require("dotenv").config();
 
 const app = express();
 const db = require("./db");
 
-// ✅ CORS Middleware (Place Before Routes)
-const allowedOrigins = [
-  "http://localhost:5173", // Development Frontend
-  "https://mcstechnology.netlify.app", // Production Frontend
-];
+// ✅ CORS Middleware
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://mcstechnology.netlify.app"]
+    : ["http://localhost:5173"]; // Development Frontend
 
 app.use(
   cors({
@@ -25,16 +26,20 @@ app.use(
   })
 );
 
+// ✅ Helmet for security headers
+app.use(helmet());
+
 // ✅ Middleware (Must Come After CORS)
 app.use(express.json()); // Replaces bodyParser
 
+// Routes
 const contactRoutes = require("./routes/contactRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 app.use("/api/contact", contactRoutes);
 app.use(errorHandler);
 
-// ✅  --- Routes by Bis Faqs ---- (Use Correct Path)
+// Other Routes
 const bisfaqRouter = require("./routes/bisfaqsRouter");
 app.use("/bisfaqs", bisfaqRouter);
 
@@ -43,6 +48,18 @@ app.use("/etafaqs", etafaqRouter);
 
 const eprfaqRouter = require("./routes/eprfaqsRouter");
 app.use("/eprfaqs", eprfaqRouter);
+
+// Catch-all for undefined routes
+app.use((req, res, next) => {
+  res.status(404).json({ error: "Not Found" });
+});
+
+// ✅ Graceful shutdown
+process.on("SIGINT", () => {
+  console.log("\nGracefully shutting down...");
+  db.disconnect(); // Close the database connection
+  process.exit(0);
+});
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
