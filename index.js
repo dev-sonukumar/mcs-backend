@@ -1,68 +1,76 @@
 const express = require("express");
 const cors = require("cors");
-const helmet = require("helmet"); // Added for security
-require("dotenv").config();
+const helmet = require("helmet");
+const dotenv = require("dotenv");
+
+dotenv.config(); // Load environment variables
 
 const app = express();
 const db = require("./db");
 
+// ✅ Allowed Origins for CORS
+const allowedOrigins = [
+  "http://localhost:5173", // Development
+  "https://mcstechnology.netlify.app", // Production
+];
+
 // ✅ CORS Middleware
-const allowedOrigins =
-  process.env.NODE_ENV === "production"
-    ? ["https://mcstechnology.netlify.app"]
-    : ["http://localhost:5173"]; // Development Frontend
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`❌ CORS Blocked: ${origin}`);
+      callback(new Error("CORS not allowed"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allow preflight requests
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // Required if sending cookies/auth headers
+};
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use(cors(corsOptions));
 
-// ✅ Helmet for security headers
-app.use(helmet());
+// ✅ Handle Preflight Requests for CORS
+app.options("*", cors(corsOptions));
+
+// ✅ Security Middleware
+app.use(helmet()); // Adds security headers
 
 // ✅ Middleware (Must Come After CORS)
-app.use(express.json()); // Replaces bodyParser
+app.use(express.json()); // Body parser for JSON
 
-// Routes
+// ✅ Import Routes
 const contactRoutes = require("./routes/contactRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
+// ✅ Use Routes
 app.use("/api/contact", contactRoutes);
 app.use(errorHandler);
 
-// Other Routes
+// ✅ Additional API Routes
 const bisfaqRouter = require("./routes/bisfaqsRouter");
-app.use("/bisfaqs", bisfaqRouter);
-
 const etafaqRouter = require("./routes/etafaqsRouter");
-app.use("/etafaqs", etafaqRouter);
-
 const eprfaqRouter = require("./routes/eprfaqsRouter");
+
+app.use("/bisfaqs", bisfaqRouter);
+app.use("/etafaqs", etafaqRouter);
 app.use("/eprfaqs", eprfaqRouter);
 
-// Catch-all for undefined routes
-app.use((req, res, next) => {
+// ✅ Catch-All for Undefined Routes
+app.use((req, res) => {
   res.status(404).json({ error: "Not Found" });
 });
 
-// ✅ Graceful shutdown
+// ✅ Graceful Shutdown
 process.on("SIGINT", () => {
-  console.log("\nGracefully shutting down...");
-  db.disconnect(); // Close the database connection
+  console.log("\n🚀 Gracefully shutting down...");
+  db.disconnect(); // Close database connection
   process.exit(0);
 });
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
